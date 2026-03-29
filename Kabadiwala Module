@@ -1,0 +1,123 @@
+import java.util.*;
+
+// Transaction class
+class Transaction {
+    String wasteType;
+    double quantity;
+    double totalPrice;
+    String source; // ragpicker
+
+    public Transaction(String wasteType, double quantity, double totalPrice, String source) {
+        this.wasteType = wasteType;
+        this.quantity = quantity;
+        this.totalPrice = totalPrice;
+        this.source = source;
+    }
+
+    public void display() {
+        System.out.println("From: " + source +
+                " | Waste: " + wasteType +
+                " | Qty: " + quantity + "kg" +
+                " | Total: ₹" + totalPrice);
+    }
+}
+
+// Kabadiwala Class
+class Kabadiwala {
+
+    private TreeMap<String, Double> priceList;  // sorted categories
+    private LinkedList<Transaction> history;    // transaction history
+
+    public Kabadiwala() {
+        priceList = new TreeMap<>();
+        history = new LinkedList<>();
+    }
+
+    // Add waste categories
+    public void addWasteCategory(String type, double price) {
+        priceList.put(type, price);
+    }
+
+    // Show dashboard (MAIN FEATURE from image)
+    public void showDashboard() {
+        System.out.println("\n=====  Kabadiwala Dashboard =====");
+        showPriceList();
+        showIncomingSummary();
+        showHistory();
+    }
+
+    // Show waste categories + prices
+    public void showPriceList() {
+        System.out.println("\n Waste Categories & Prices:");
+        for (Map.Entry<String, Double> e : priceList.entrySet()) {
+            System.out.println(e.getKey() + " → ₹" + e.getValue() + "/kg");
+        }
+    }
+
+    // Incoming waste processing (from ragpicker)
+    public void receiveWaste(String ragpickerName, String type, double qty) {
+        if (!priceList.containsKey(type)) {
+            System.out.println(" Invalid waste type!");
+            return;
+        }
+
+        double price = priceList.get(type);
+        double total = price * qty;
+
+        Transaction t = new Transaction(type, qty, total, ragpickerName);
+        history.add(t);
+
+        System.out.println(" Waste received from " + ragpickerName);
+        System.out.println(" Amount to pay: ₹" + total);
+    }
+
+    // Show incoming summary (extra feature)
+    public void showIncomingSummary() {
+        System.out.println("\n Incoming Waste Summary:");
+        if (history.isEmpty()) {
+            System.out.println("No waste received yet.");
+            return;
+        }
+
+        double totalQty = 0;
+        for (Transaction t : history) {
+            totalQty += t.quantity;
+        }
+
+        System.out.println("Total Waste Received: " + totalQty + " kg");
+    }
+
+    // Show transaction history
+    public void showHistory() {
+        System.out.println("\n Transaction History:");
+        if (history.isEmpty()) {
+            System.out.println("No transactions yet.");
+            return;
+        }
+
+        for (Transaction t : history) {
+            t.display();
+        }
+    }
+}
+
+// Main class
+public class Main {
+    public static void main(String[] args) {
+
+        Kabadiwala kb = new Kabadiwala();
+
+        // Add categories
+        kb.addWasteCategory("Plastic", 10);
+        kb.addWasteCategory("Metal", 25);
+        kb.addWasteCategory("Paper", 5);
+
+        // Incoming waste from ragpickers
+        kb.receiveWaste("Priyanshu", "Plastic", 4);
+        kb.receiveWaste("Priyanshu", "Metal", 2);
+        kb.receiveWaste("Rahul", "Paper", 6);
+
+        // Show full dashboard
+        kb.showDashboard();
+    }
+}
